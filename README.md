@@ -104,6 +104,16 @@ cargo build --release
 
 The compiled binary will be placed at `target/release/lgtui`.
 
+### Uninstallation
+
+To cleanly remove LGTUI from your system (including its binary, desktop menu items, and custom icons), execute:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/ucmz851/lgtui/main/scripts/uninstall.sh | sh
+```
+
+*(Note: The uninstaller will ask whether you want to delete or preserve your local SQLite database containing game settings and playtime statistics).*
+
 ---
 
 ## ⌨️ Controls & Navigation
