@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 250" width="100%">
+  <!-- Definitions for gradients and shadows -->
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B0F19" />
+      <stop offset="100%" stop-color="#1E2640" />
+    </linearGradient>
+    
+    <!-- Accent Gradient (Cyan to Purple) -->
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00F2FE" />
+      <stop offset="50%" stop-color="#4FACFE" />
+      <stop offset="100%" stop-color="#7F00FF" />
+    </linearGradient>
+    
+    <!-- Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Main Rounded Terminal Background -->
+  <rect width="800" height="250" rx="16" fill="url(#bgGrad)" stroke="#23355C" stroke-width="2" />
+
+  <!-- Terminal Title Bar -->
+  <path d="M 2 16 A 14 14 0 0 1 16 2 L 784 2 A 14 14 0 0 1 798 16 L 798 45 L 2 45 Z" fill="#0D1326" />
+  <line x1="2" y1="45" x2="798" y2="45" stroke="#23355C" stroke-width="1.5" />
+
+  <!-- Window Control Buttons (macOS-style) -->
+  <circle cx="25" cy="23" r="6" fill="#FF5F56" />
+  <circle cx="45" cy="23" r="6" fill="#FFBD2E" />
+  <circle cx="65" cy="23" r="6" fill="#27C93F" />
+  
+  <!-- Window Title -->
+  <text x="400" y="28" font-family="JetBrains Mono, Fira Code, Courier New, monospace" font-size="12" fill="#4B6396" text-anchor="middle" letter-spacing="1.5">lgtui – terminal gaming dashboard</text>
+
+  <!-- Left Side: Gaming Controller Icon with Terminal Prompts -->
+  <g transform="translate(60, 50)">
+    <!-- Code Bracket Icon [ ] -->
+    <text x="0" y="115" font-family="Courier New, monospace" font-weight="900" font-size="130" fill="#1B2B4C">[</text>
+    <text x="180" y="115" font-family="Courier New, monospace" font-weight="900" font-size="130" fill="#1B2B4C">]</text>
+
+    <!-- Game Controller inside the brackets -->
+    <g transform="translate(56, 28)">
+      <!-- Controller Body -->
+      <path d="M 15 25 C 15 10, 85 10, 85 25 C 85 25, 85 55, 85 55 C 85 65, 65 75, 50 75 C 35 75, 15 65, 15 55 Z" fill="none" stroke="url(#accentGrad)" stroke-width="6" stroke-linejoin="round" filter="url(#glow)" />
+      <!-- Left D-Pad -->
+      <path d="M 28 40 L 36 40 M 32 36 L 32 44" stroke="#00F2FE" stroke-width="3" stroke-linecap="round" />
+      <!-- Right Action Buttons -->
+      <circle cx="62" cy="38" r="2.5" fill="#7F00FF" />
+      <circle cx="70" cy="44" r="2.5" fill="#7F00FF" />
+      <circle cx="62" cy="50" r="2.5" fill="#7F00FF" />
+      <!-- Analog Sticks -->
+      <circle cx="42" cy="52" r="5" fill="none" stroke="#4FACFE" stroke-width="2" />
+      <circle cx="58" cy="52" r="5" fill="none" stroke="#4FACFE" stroke-width="2" />
+    </g>
+  </g>
+
+  <!-- Right Side: Text & Brand Typography -->
+  <g transform="translate(320, 115)">
+    <!-- Terminal Prompt -->
+    <text x="0" y="45" font-family="JetBrains Mono, Fira Code, Courier New, monospace" font-weight="bold" font-size="44" fill="#00F2FE">&gt;_</text>
+    
+    <!-- LGTUI Name -->
+    <text x="75" y="45" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="68" fill="#FFFFFF" letter-spacing="2">LGTUI</text>
+    
+    <!-- Subtitle / Explainer -->
+    <text x="80" y="85" font-family="JetBrains Mono, Fira Code, Courier New, monospace" font-size="14" fill="#4FACFE" letter-spacing="1">Linux Gaming Terminal UI</text>
+    <text x="312" y="85" font-family="JetBrains Mono, Fira Code, Courier New, monospace" font-size="14" fill="#7F00FF" filter="url(#glow)">█</text>
+  </g>
+</svg>
