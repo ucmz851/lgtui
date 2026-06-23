@@ -82,15 +82,15 @@ impl Default for Config {
                     .join("runners/GE-Proton9-5/proton")
                     .to_string_lossy()
                     .to_string(),
-                installed: true,
-                download_url: None,
+                installed: false,
+                download_url: Some("https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton9-5/GE-Proton9-5.tar.gz".to_string()),
             },
             Runner {
                 id: "wine-staging-9-10".to_string(),
                 name: "Wine Staging".to_string(),
                 version: "9.10".to_string(),
                 path: "/usr/bin/wine".to_string(),
-                installed: true,
+                installed: std::path::Path::new("/usr/bin/wine").exists(),
                 download_url: None,
             },
             Runner {
@@ -102,7 +102,7 @@ impl Default for Config {
                     .to_string_lossy()
                     .to_string(),
                 installed: false,
-                download_url: None,
+                download_url: Some("https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton8-25/GE-Proton8-25.tar.gz".to_string()),
             },
             Runner {
                 id: "proton-9-beta".to_string(),
@@ -245,7 +245,68 @@ impl Config {
             .unwrap_or_else(|| Config::default().runner_download_dir);
 
         let games = crate::database::get_all_games(&conn).unwrap_or_default();
-        let runners = crate::database::get_all_runners(&conn).unwrap_or_default();
+        let mut runners = crate::database::get_all_runners(&conn).unwrap_or_default();
+
+        let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+        let steam_compat_dir =
+            std::path::PathBuf::from(&home).join(".local/share/steam/compatibilitytools.d");
+        let base_dir = std::path::PathBuf::from(&home).join(".local/share/lgtui");
+
+        // Verify and update installation status of runners loaded from DB
+        for r in &mut runners {
+            let mut exists = std::path::Path::new(&r.path).exists();
+            if !exists && r.name.contains("Proton") {
+                let steam_path = steam_compat_dir.join(&r.version).join("proton");
+                if steam_path.exists() {
+                    r.path = steam_path.to_string_lossy().to_string();
+                    exists = true;
+                } else {
+                    let lgtui_path = base_dir.join("runners").join(&r.version).join("proton");
+                    if lgtui_path.exists() {
+                        r.path = lgtui_path.to_string_lossy().to_string();
+                        exists = true;
+                    }
+                }
+            }
+            if r.id == "wine-staging-9-10" {
+                exists = std::path::Path::new("/usr/bin/wine").exists();
+            }
+            r.installed = exists;
+        }
+
+        // Scan local steam compatibility tools directory
+        if steam_compat_dir.exists() {
+            if let Ok(entries) = std::fs::read_dir(&steam_compat_dir) {
+                for entry in entries.flatten() {
+                    if let Ok(file_type) = entry.file_type() {
+                        if file_type.is_dir() {
+                            let dir_name = entry.file_name().to_string_lossy().to_string();
+                            let proton_path = entry.path().join("proton");
+                            if proton_path.exists() {
+                                let id = dir_name.to_lowercase();
+                                if !runners.iter().any(|r| r.id == id) {
+                                    let name = if dir_name.starts_with("GE-") {
+                                        "Proton-GE".to_string()
+                                    } else {
+                                        "Proton".to_string()
+                                    };
+                                    let new_runner = Runner {
+                                        id,
+                                        name,
+                                        version: dir_name.clone(),
+                                        path: proton_path.to_string_lossy().to_string(),
+                                        installed: true,
+                                        download_url: None,
+                                    };
+                                    let _ = crate::database::save_runner(&conn, &new_runner);
+                                    runners.push(new_runner);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         Config {
             default_wineprefix,

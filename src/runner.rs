@@ -72,58 +72,53 @@ impl RunnerManager {
             .user_agent("lgtui-downloader/0.1.0")
             .build()?;
 
-        let url = "https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases";
-        let mut request = client.get(url);
-        if let Ok(token) = std::env::var("GITHUB_TOKEN") {
-            let token = token.trim();
-            if !token.is_empty() {
-                request = request.header("Authorization", format!("Bearer {}", token));
-            }
-        }
+        // Use GitHub Releases Atom feed to bypass REST API rate limits
+        let url = "https://github.com/GloriousEggroll/proton-ge-custom/releases.atom";
+        let request = client.get(url);
         let response = request.send().await?;
 
         if !response.status().is_success() {
-            let status = response.status().as_u16();
-            if status == 403 || status == 429 {
-                return Err("GitHub API rate limit exceeded. Set GITHUB_TOKEN in your environment to increase limits.".into());
-            }
-            return Err(format!("GitHub API returned status: {}", response.status()).into());
+            return Err(format!("GitHub returned status: {}", response.status()).into());
         }
 
-        #[derive(serde::Deserialize)]
-        struct ReleaseAsset {
-            name: String,
-            browser_download_url: String,
-        }
-
-        #[derive(serde::Deserialize)]
-        struct Release {
-            tag_name: String,
-            assets: Vec<ReleaseAsset>,
-        }
-
-        let releases: Vec<Release> = response.json().await?;
+        let response_text = response.text().await?;
 
         let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
         let steam_compat_dir =
-            std::path::PathBuf::from(home).join(".local/share/steam/compatibilitytools.d");
+            std::path::PathBuf::from(&home).join(".local/share/steam/compatibilitytools.d");
 
         let mut runners = Vec::new();
+        let search_str = "https://github.com/GloriousEggroll/proton-ge-custom/releases/tag/";
+        let mut start_idx = 0;
 
-        for rel in releases {
-            if let Some(asset) = rel.assets.iter().find(|a| a.name.ends_with(".tar.gz")) {
-                let id = rel.tag_name.to_lowercase();
-                let dest_path = steam_compat_dir.join(&rel.tag_name);
-                let installed = dest_path.exists() && dest_path.join("proton").exists();
+        while let Some(idx) = response_text[start_idx..].find(search_str) {
+            let actual_idx = start_idx + idx;
+            let tag_start = actual_idx + search_str.len();
+            if let Some(end_offset) = response_text[tag_start..].find('"') {
+                let tag_name = &response_text[tag_start..tag_start + end_offset];
 
-                runners.push(Runner {
-                    id,
-                    name: "Proton-GE".to_string(),
-                    version: rel.tag_name.clone(),
-                    path: dest_path.join("proton").to_string_lossy().to_string(),
-                    installed,
-                    download_url: Some(asset.browser_download_url.clone()),
-                });
+                // Exclude any empty/invalid tags or duplicates in the feed
+                if !tag_name.is_empty() && !runners.iter().any(|r: &Runner| r.version == tag_name) {
+                    let id = tag_name.to_lowercase();
+                    let dest_path = steam_compat_dir.join(tag_name);
+                    let installed = dest_path.exists() && dest_path.join("proton").exists();
+                    let download_url = format!(
+                        "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/{}/{}.tar.gz",
+                        tag_name, tag_name
+                    );
+
+                    runners.push(Runner {
+                        id,
+                        name: "Proton-GE".to_string(),
+                        version: tag_name.to_string(),
+                        path: dest_path.join("proton").to_string_lossy().to_string(),
+                        installed,
+                        download_url: Some(download_url),
+                    });
+                }
+                start_idx = tag_start + end_offset;
+            } else {
+                break;
             }
         }
 
