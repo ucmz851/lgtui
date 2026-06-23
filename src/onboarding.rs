@@ -52,9 +52,7 @@ fn has_command(cmd: &str) -> bool {
 }
 
 pub fn needs_onboarding() -> bool {
-    let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
-    let path = PathBuf::from(home).join(".config/lgui/config.toml");
-    !path.exists()
+    false
 }
 
 pub fn complete_onboarding() {
