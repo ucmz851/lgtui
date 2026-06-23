@@ -85,14 +85,27 @@ if [ -f Cargo.toml ] && { [ -f "target/debug/lgtui" ] || [ -f "target/release/lg
     fi
 else
     echo "Downloading LGTUI release ($LATEST_TAG) from GitHub..."
+    download_success=0
     if command -v curl >/dev/null 2>&1; then
-        curl -sSL -o "$TMP_DIR/lgtui.tar.gz" "$DOWNLOAD_URL"
+        if curl -sSL -f -o "$TMP_DIR/lgtui.tar.gz" "$DOWNLOAD_URL"; then
+            download_success=1
+        fi
     elif command -v wget >/dev/null 2>&1; then
-        wget -q -O "$TMP_DIR/lgtui.tar.gz" "$DOWNLOAD_URL"
+        if wget -q -O "$TMP_DIR/lgtui.tar.gz" "$DOWNLOAD_URL"; then
+            download_success=1
+        fi
     else
         echo "${COLOR_RED}[ERROR] Neither curl nor wget was found. Cannot download release.${COLOR_RESET}"
         exit 1
     fi
+
+    if [ "$download_success" -ne 1 ]; then
+        echo "${COLOR_RED}[ERROR] Failed to download release asset from: $DOWNLOAD_URL${COLOR_RESET}"
+        echo "${COLOR_RED}[ERROR] This usually means release $LATEST_TAG has not been created yet or the GitHub Action release build is still in progress.${COLOR_RESET}"
+        echo "${COLOR_YELLOW}[TIP] Try pushing your release tag now: git tag $LATEST_TAG && git push origin $LATEST_TAG${COLOR_RESET}"
+        exit 1
+    fi
+
     tar -xzf "$TMP_DIR/lgtui.tar.gz" -C "$TMP_DIR"
 fi
 
