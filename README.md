@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/lgtui/lgtui/blob/main/LICENSE"><img src="https://img.shields.io/github/license/lgtui/lgtui?style=for-the-badge&color=0052FF" alt="License"/></a>
+  <a href="https://github.com/ucmz851/lgtui/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ucmz851/lgtui?style=for-the-badge&color=0052FF" alt="License"/></a>
   <img src="https://img.shields.io/badge/Language-Rust-orange?style=for-the-badge&logo=rust" alt="Rust"/>
   <img src="https://img.shields.io/badge/Database-SQLite-003B57?style=for-the-badge&logo=sqlite" alt="SQLite"/>
   <img src="https://img.shields.io/badge/Platform-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux"/>
@@ -75,7 +75,7 @@ To utilize wrappers like DXVK, MangoHud, and GameMode, ensure your host machine 
 To install the latest pre-compiled release and register LGTUI to your desktop launcher, execute:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/lgtui/lgtui/main/scripts/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/ucmz851/lgtui/main/scripts/install.sh | sh
 ```
 
 > **Note**: This registers `lgtui.desktop` under `~/.local/share/applications/`, enabling you to search for and launch LGTUI directly from your system application menu.
@@ -86,7 +86,7 @@ Ensure you have Rust and Cargo installed:
 
 ```bash
 # Clone the repository
-git clone https://github.com/lgtui/lgtui.git
+git clone https://github.com/ucmz851/lgtui.git
 cd lgtui
 
 # Compile release build

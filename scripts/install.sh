@@ -51,7 +51,7 @@ echo "Installing to: $INSTALL_DIR/lgtui"
 
 # Fetch latest release info
 echo "Fetching latest release details..."
-REPO="lgtui/lgtui"
+REPO="ucmz851/lgtui"
 # In a real environment, we query the GitHub API:
 # LATEST_TAG=$(curl -sSL "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
 LATEST_TAG="v0.1.0"
