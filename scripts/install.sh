@@ -149,7 +149,7 @@ EOF
 chmod +x "$DESKTOP_DIR/lgtui.desktop"
 
 echo -e "\n${COLOR_GREEN}=== LGTUI Binary Installed Successfully! ===${COLOR_RESET}"
-echo -e "The LGTUI binary and application icon are now registered on your system."
+echo -e "The LGTUI is installed on your system."
 echo ""
 echo -e "${COLOR_YELLOW}${COLOR_BOLD}👉 NEXT STEP:${COLOR_RESET}"
 echo -e "To configure Wine compatibility branches, Winetricks, MangoHud, and GameMode, run:"
