@@ -114,6 +114,22 @@ curl -sSL https://raw.githubusercontent.com/ucmz851/lgtui/main/scripts/uninstall
 
 *(Note: The uninstaller will ask whether you want to delete or preserve your local SQLite database containing game settings and playtime statistics).*
 
+### Command Line Utility Flags
+
+LGTUI includes native commands to manage its system configuration directly:
+
+* **Configure / Re-install system dependencies**:
+  ```bash
+  lgtui --install
+  ```
+  *(This launches the interactive Rust setup wizard to configure Wine, Winetricks, MangoHud, Feral GameMode, etc.)*
+
+* **Uninstall configurations and purge database/icons**:
+  ```bash
+  lgtui --uninstall
+  ```
+  *(This runs the interactive uninstaller to clean files and optionally purge your database settings).*
+
 ---
 
 ## ⌨️ Controls & Navigation
