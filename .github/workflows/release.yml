@@ -5,16 +5,15 @@ on:
     tags:
       - 'v*'
 
-permissions:
-  contents: write
-
 jobs:
   build-release:
     name: Build Release Binary
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -35,7 +34,7 @@ jobs:
           tar -czf lgtui-linux-x86_64.tar.gz -C dist lgtui
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: lgtui-linux-x86_64.tar.gz
         env:
