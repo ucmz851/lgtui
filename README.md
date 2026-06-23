@@ -56,6 +56,15 @@ graph TD
 
 ---
 
+## 📸 Screenshots
+
+<p align="center">
+  <img src="screenshots/library.png" alt="LGTUI Library View" width="49%" />
+  <img src="screenshots/runners.png" alt="LGTUI Wine/Proton Runner Manager" width="49%" />
+</p>
+
+---
+
 ## 📋 Prerequisites
 
 To utilize wrappers like DXVK, MangoHud, and GameMode, ensure your host machine has the appropriate packages installed.
