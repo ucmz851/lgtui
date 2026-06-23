@@ -12,6 +12,7 @@ use tokio::sync::mpsc;
 mod app;
 mod database;
 mod game;
+mod installer;
 mod onboarding;
 mod prefix;
 mod process;
@@ -24,6 +25,18 @@ use runner::AppEvent;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Handle command line installer flags before setting up the terminal
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() > 1 {
+        if args[1] == "--install" {
+            installer::run_install()?;
+            return Ok(());
+        } else if args[1] == "--uninstall" {
+            installer::run_uninstall()?;
+            return Ok(());
+        }
+    }
+
     // Setup terminal
     enable_raw_mode()?;
     let mut stdout = io::stdout();

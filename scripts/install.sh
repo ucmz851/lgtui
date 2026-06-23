@@ -1,30 +1,16 @@
 #!/bin/bash
-# install.sh - Pre-compiled binary installer and interactive environment setup for LGTUI
+# install.sh - Pre-compiled binary installer for LGTUI
 
 set -e
 
 # ANSI Color Codes
 COLOR_GREEN='\033[0;32m'
-COLOR_CYAN='\033[0;36m'
 COLOR_BLUE='\033[0;34m'
 COLOR_YELLOW='\033[1;33m'
 COLOR_RED='\033[0;31m'
-COLOR_MAGENTA='\033[0;35m'
-COLOR_BOLD='\033[1m'
 COLOR_RESET='\033[0m'
 
-# Welcome Screen with ASCII Art
-clear
-echo -e "${COLOR_MAGENTA}${COLOR_BOLD}"
-echo "  _      _____ _______ _    _ _____ "
-echo " | |    / ____|__   __| |  | |_   _|"
-echo " | |   | |  __   | |  | |  | | | |  "
-echo " | |   | | |_ |  | |  | |  | | | |  "
-echo " | |___| |__| |  | |  | |__| |_| |_ "
-echo " |______\\_____|  |_|   \\____/|_____|"
-echo -e "${COLOR_RESET}"
-echo -e "${COLOR_BOLD}=== LGTUI Interactive Installation & System Setup ===${COLOR_RESET}"
-echo ""
+echo "=== LGTUI Binary Installer ==="
 
 # Check target OS
 if [ "$(uname)" != "Linux" ]; then
@@ -39,159 +25,7 @@ if [ "$ARCH" != "x86_64" ] && [ "$ARCH" != "amd64" ]; then
     exit 1
 fi
 
-# Helper functions for prompts
-ask_yn() {
-    local prompt="$1"
-    local default="$2" # y or n
-    local choice
-    
-    if [ "$default" = "y" ]; then
-        prompt="$prompt [Y/n]: "
-    else
-        prompt="$prompt [y/N]: "
-    fi
-    
-    printf "${COLOR_CYAN}${COLOR_BOLD}%s${COLOR_RESET}" "$prompt"
-    read -r choice
-    
-    if [ -z "$choice" ]; then
-        choice="$default"
-    fi
-    
-    case "$choice" in
-        [yY]|[yY][eE][sS]) echo "y" ;;
-        *) echo "n" ;;
-    esac
-}
-
-ask_choice() {
-    local prompt="$1"
-    local default="$2"
-    local choice
-    
-    printf "${COLOR_CYAN}${COLOR_BOLD}%s (Default: %s): ${COLOR_RESET}" "$prompt" "$default"
-    read -r choice
-    
-    if [ -z "$choice" ]; then
-        choice="$default"
-    fi
-    echo "$choice"
-}
-
-detect_package_manager() {
-    if command -v pacman >/dev/null 2>&1; then
-        echo "pacman"
-    elif command -v apt-get >/dev/null 2>&1; then
-        echo "apt"
-    elif command -v dnf >/dev/null 2>&1; then
-        echo "dnf"
-    else
-        echo "unknown"
-    fi
-}
-
-# 1. Start Interactive Dependency Wizard
-PM=$(detect_package_manager)
-
-if [ "$PM" = "unknown" ]; then
-    echo -e "${COLOR_YELLOW}[WARNING] Supported package manager (pacman, apt, dnf) not detected.${COLOR_RESET}"
-    echo -e "${COLOR_YELLOW}[WARNING] Skipping interactive dependency installer wizard.${COLOR_RESET}"
-else
-    echo -e "${COLOR_GREEN}------------------------------------------------------------${COLOR_RESET}"
-    echo -e "${COLOR_BOLD}🎮 Linux Gaming Compatibility Setup Wizard${COLOR_RESET}"
-    echo -e "Let's configure compatibility runners, tools, and HUD overlays."
-    echo -e "${COLOR_GREEN}------------------------------------------------------------${COLOR_RESET}"
-    
-    # Question: Install Wine
-    WINE_INSTALL=$(ask_yn "Install Wine Compatibility Layer?" "y")
-    WINE_CHOICE="2"
-    if [ "$WINE_INSTALL" = "y" ]; then
-        WINE_CHOICE=$(ask_choice "Choose Wine branch: [1] Stable  [2] Staging (Recommended for gaming)" "2")
-    fi
-    
-    # Question: Install Winetricks
-    TRICKS_INSTALL=$(ask_yn "Install Winetricks (helper to download DLLs, fonts, and runtime libraries)?" "y")
-    
-    # Question: Install MangoHud
-    HUD_INSTALL=$(ask_yn "Install MangoHud (high-performance overlay for FPS, CPU/GPU, and VRAM monitoring)?" "y")
-    
-    # Question: Install GameMode
-    MODE_INSTALL=$(ask_yn "Install Feral GameMode (optimizes Linux system priorities dynamically on game launch)?" "y")
-    
-    # Question: Enable Multi-arch
-    MULTIARCH_INSTALL="n"
-    if [ "$PM" = "apt" ]; then
-        MULTIARCH_INSTALL=$(ask_yn "Enable 32-bit architecture & libraries (mandatory for older/Steam games)?" "y")
-    fi
-
-    # Execute installs
-    echo -e "\n${COLOR_BLUE}${COLOR_BOLD}--- Applying Package Choices ---${COLOR_RESET}"
-    
-    PACKAGES=""
-    
-    if [ "$MULTIARCH_INSTALL" = "y" ]; then
-        echo -e "${COLOR_YELLOW}Enabling 32-bit architecture...${COLOR_RESET}"
-        sudo dpkg --add-architecture i386
-        sudo apt-get update
-    fi
-    
-    if [ "$WINE_INSTALL" = "y" ]; then
-        if [ "$PM" = "pacman" ]; then
-            if [ "$WINE_CHOICE" = "2" ]; then
-                PACKAGES="$PACKAGES wine-staging"
-            else
-                PACKAGES="$PACKAGES wine"
-            fi
-            PACKAGES="$PACKAGES wine-mono wine-gecko"
-        elif [ "$PM" = "apt" ]; then
-            if [ "$WINE_CHOICE" = "2" ]; then
-                PACKAGES="$PACKAGES wine-development"
-            else
-                PACKAGES="$PACKAGES wine"
-            fi
-        elif [ "$PM" = "dnf" ]; then
-            PACKAGES="$PACKAGES wine wine-mono-core wine-gecko"
-        fi
-    fi
-    
-    if [ "$TRICKS_INSTALL" = "y" ]; then
-        PACKAGES="$PACKAGES winetricks"
-    fi
-    
-    if [ "$HUD_INSTALL" = "y" ]; then
-        PACKAGES="$PACKAGES mangohud"
-        if [ "$PM" = "pacman" ]; then
-            PACKAGES="$PACKAGES lib32-mangohud"
-        fi
-    fi
-    
-    if [ "$MODE_INSTALL" = "y" ]; then
-        if [ "$PM" = "pacman" ]; then
-            PACKAGES="$PACKAGES gamemode lib32-gamemode"
-        elif [ "$PM" = "apt" ]; then
-            PACKAGES="$PACKAGES gamemode"
-        elif [ "$PM" = "dnf" ]; then
-            PACKAGES="$PACKAGES gamemode"
-        fi
-    fi
-
-    if [ -n "$PACKAGES" ]; then
-        echo -e "${COLOR_CYAN}Installing selected packages: ${COLOR_BOLD}$PACKAGES${COLOR_RESET}"
-        if [ "$PM" = "pacman" ]; then
-            sudo pacman -S --noconfirm --needed $PACKAGES
-        elif [ "$PM" = "apt" ]; then
-            sudo apt-get install -y $PACKAGES
-        elif [ "$PM" = "dnf" ]; then
-            sudo dnf install -y $PACKAGES
-        fi
-        echo -e "${COLOR_GREEN}[SUCCESS] Dependencies installed successfully.${COLOR_RESET}"
-    else
-        echo -e "${COLOR_YELLOW}No additional compatibility packages selected.${COLOR_RESET}"
-    fi
-    echo ""
-fi
-
-# 2. Determine install destination
+# Determine install destination
 INSTALL_DIR=""
 ICON_DIR=""
 
@@ -216,10 +50,9 @@ else
     esac
 fi
 
-echo -e "${COLOR_BLUE}${COLOR_BOLD}--- Installing LGTUI Binary ---${COLOR_RESET}"
-echo "Destination directory: $INSTALL_DIR"
+echo "Installing binary to: $INSTALL_DIR/lgtui"
 
-# 3. Fetch latest release info
+# Fetch latest release info
 REPO="ucmz851/lgtui"
 LATEST_TAG=""
 if command -v curl >/dev/null 2>&1; then
@@ -238,7 +71,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# 4. Install LGTUI binary
+# Install LGTUI binary
 if [ -f Cargo.toml ] && { [ -f "target/debug/lgtui" ] || [ -f "target/release/lgtui" ] || command -v cargo >/dev/null 2>&1; }; then
     echo "Detected local repository clone. Installing local binary..."
     if [ -f "target/release/lgtui" ]; then
@@ -294,7 +127,7 @@ if [ -f "$TMP_DIR/icon.svg" ] && [ -n "$ICON_DIR" ]; then
     fi
 fi
 
-# 5. Setup Desktop Entry file
+# Setup Desktop Entry file
 echo "Installing desktop application entry..."
 DESKTOP_DIR="$HOME/.local/share/applications"
 mkdir -p "$DESKTOP_DIR"
@@ -313,7 +146,6 @@ EOF
 
 chmod +x "$DESKTOP_DIR/lgtui.desktop"
 
-echo -e "\n${COLOR_GREEN}${COLOR_BOLD}=== Installation Completed Successfully! ===${COLOR_RESET}"
-echo -e "You can launch LGTUI by typing ${COLOR_BLUE}${COLOR_BOLD}lgtui${COLOR_RESET} in your terminal,"
-echo -e "or run it directly from your desktop applications menu."
-echo -e "Have fun gaming! 🚀"
+# Execute native Rust interactive installer wizard
+echo "Launching interactive setup wizard..."
+"$INSTALL_DIR/lgtui" --install
