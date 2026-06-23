@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%">
+  <!-- Definitions for Gradients -->
+  <defs>
+    <!-- Wine & Gaming liquid gradient -->
+    <linearGradient id="wineGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7F1D1D" /> <!-- Deep Wine Red -->
+      <stop offset="60%" stop-color="#B91C1C" /> <!-- Crimson -->
+      <stop offset="100%" stop-color="#EC4899" /> <!-- Neon Pink/Rose -->
+    </linearGradient>
+  </defs>
+
+  <!-- Clean, minimalist background (polished rounded icon) -->
+  <rect width="120" height="120" rx="24" fill="#0B0F19" />
+
+  <!-- Logo Group centered inside 120x120 -->
+  <g transform="translate(10, 10)">
+    <!-- Wine Glass Outline -->
+    <path d="M 50 80 C 20 80, 10 55, 10 15 L 90 15 C 90 55, 80 80, 50 80 Z" 
+          fill="none" stroke="#374151" stroke-width="4" stroke-linejoin="round" />
+    <!-- Glass Stem & Base -->
+    <path d="M 50 80 L 50 100 M 25 100 L 75 100" 
+          fill="none" stroke="#374151" stroke-width="4" stroke-linecap="round" />
+    
+    <!-- Liquid in the glass (Wine) -->
+    <path d="M 14 26 C 22 24, 78 24, 86 26 C 86 55, 76 75, 50 75 C 24 75, 14 55, 14 26 Z" 
+          fill="url(#wineGrad)" />
+    
+    <!-- Cutout/Overlay: Minimalist Gamepad Silhouette in the wine liquid -->
+    <!-- Controller Body -->
+    <rect x="28" y="38" width="44" height="24" rx="12" fill="#0B0F19" />
+    <!-- Left D-pad (simple plus) -->
+    <path d="M 36 50 L 42 50 M 39 47 L 39 53" stroke="#EC4899" stroke-width="2" stroke-linecap="round" />
+    <!-- Right Buttons (dots) -->
+    <circle cx="58" cy="47" r="2.2" fill="#E11D48" />
+    <circle cx="64" cy="53" r="2.2" fill="#E11D48" />
+  </g>
+</svg>

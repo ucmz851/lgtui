@@ -31,7 +31,8 @@ jobs:
         run: |
           mkdir -p dist
           cp target/release/lgtui dist/
-          tar -czf lgtui-linux-x86_64.tar.gz -C dist lgtui
+          cp icon.svg dist/
+          tar -czf lgtui-linux-x86_64.tar.gz -C dist lgtui icon.svg
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3

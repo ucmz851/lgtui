@@ -27,14 +27,21 @@ fi
 
 # Determine install destination
 INSTALL_DIR=""
+ICON_DIR=""
 USE_SUDO=0
 
 if [ "$(id -u)" -eq 0 ]; then
     INSTALL_DIR="/usr/local/bin"
+    ICON_DIR="/usr/share/icons/hicolor/scalable/apps"
 else
     # Non-root installation path
     INSTALL_DIR="$HOME/.local/bin"
     mkdir -p "$INSTALL_DIR"
+    
+    # Icon directory path
+    ICON_DIR="$HOME/.local/share/icons/hicolor/scalable/apps"
+    mkdir -p "$ICON_DIR"
+    mkdir -p "$HOME/.local/share/icons"
     
     # Check if destination is in PATH
     case ":$PATH:" in
@@ -83,6 +90,10 @@ if [ -f Cargo.toml ] && { [ -f "target/debug/lgtui" ] || [ -f "target/release/lg
         cargo build --release
         cp target/release/lgtui "$TMP_DIR/lgtui"
     fi
+    # Copy local icon
+    if [ -f "icon.svg" ]; then
+        cp "icon.svg" "$TMP_DIR/icon.svg"
+    fi
 else
     echo "Downloading LGTUI release ($LATEST_TAG) from GitHub..."
     download_success=0
@@ -113,6 +124,18 @@ fi
 cp "$TMP_DIR/lgtui" "$INSTALL_DIR/lgtui"
 chmod +x "$INSTALL_DIR/lgtui"
 
+# Copy icon to destination
+if [ -f "$TMP_DIR/icon.svg" ] && [ -n "$ICON_DIR" ]; then
+    echo "Installing application icon..."
+    cp "$TMP_DIR/icon.svg" "$ICON_DIR/lgtui.svg"
+    # Secondary user-level fallback path
+    if [ "$(id -u)" -ne 0 ]; then
+        cp "$TMP_DIR/icon.svg" "$HOME/.local/share/icons/lgtui.svg"
+    else
+        cp "$TMP_DIR/icon.svg" "/usr/share/icons/lgtui.svg"
+    fi
+fi
+
 # Setup Desktop Entry file
 echo "Installing desktop application entry..."
 DESKTOP_DIR="$HOME/.local/share/applications"
@@ -123,7 +146,7 @@ cat <<EOF > "$DESKTOP_DIR/lgtui.desktop"
 Name=LGTUI
 Comment=Linux Gaming Terminal UI
 Exec=$INSTALL_DIR/lgtui
-Icon=utilities-terminal
+Icon=lgtui
 Terminal=true
 Type=Application
 Categories=Game;Utility;
