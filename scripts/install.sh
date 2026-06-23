@@ -8,9 +8,11 @@ COLOR_GREEN='\033[0;32m'
 COLOR_BLUE='\033[0;34m'
 COLOR_YELLOW='\033[1;33m'
 COLOR_RED='\033[0;31m'
+COLOR_CYAN='\033[0;36m'
+COLOR_BOLD='\033[1m'
 COLOR_RESET='\033[0m'
 
-echo "=== LGTUI Binary Installer ==="
+echo -e "${COLOR_BLUE}${COLOR_BOLD}=== LGTUI Binary Installer ===${COLOR_RESET}"
 
 # Check target OS
 if [ "$(uname)" != "Linux" ]; then
@@ -146,6 +148,11 @@ EOF
 
 chmod +x "$DESKTOP_DIR/lgtui.desktop"
 
-# Execute native Rust interactive installer wizard
-echo "Launching interactive setup wizard..."
-"$INSTALL_DIR/lgtui" --install
+echo -e "\n${COLOR_GREEN}=== LGTUI Binary Installed Successfully! ===${COLOR_RESET}"
+echo -e "The LGTUI binary and application icon are now registered on your system."
+echo ""
+echo -e "${COLOR_YELLOW}${COLOR_BOLD}👉 NEXT STEP:${COLOR_RESET}"
+echo -e "To configure Wine compatibility branches, Winetricks, MangoHud, and GameMode, run:"
+echo -e "  ${COLOR_BLUE}${COLOR_BOLD}lgtui --install${COLOR_RESET}"
+echo ""
+echo -e "Once configured, simply launch the dashboard by typing ${COLOR_BLUE}${COLOR_BOLD}lgtui${COLOR_RESET} in your terminal."
