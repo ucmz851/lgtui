@@ -52,9 +52,17 @@ echo "Installing to: $INSTALL_DIR/lgtui"
 # Fetch latest release info
 echo "Fetching latest release details..."
 REPO="ucmz851/lgtui"
-# In a real environment, we query the GitHub API:
-# LATEST_TAG=$(curl -sSL "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-LATEST_TAG="v0.1.0"
+
+# Query the GitHub API for the latest release tag, with fallback
+LATEST_TAG=""
+if command -v curl >/dev/null 2>&1; then
+    LATEST_TAG=$(curl -sSL --connect-timeout 4 "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+fi
+
+if [ -z "$LATEST_TAG" ] || [ "$LATEST_TAG" = "null" ]; then
+    LATEST_TAG="v0.1.0"
+fi
+
 DOWNLOAD_URL="https://github.com/$REPO/releases/download/$LATEST_TAG/lgtui-linux-x86_64.tar.gz"
 
 TMP_DIR=$(mktemp -d)

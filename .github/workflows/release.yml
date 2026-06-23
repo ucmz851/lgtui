@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-release:
+    name: Build Release Binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo Dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Binary
+        run: cargo build --release --locked
+
+      - name: Strip Binary Symbols
+        run: strip target/release/lgtui
+
+      - name: Package Release Asset
+        run: |
+          mkdir -p dist
+          cp target/release/lgtui dist/
+          tar -czf lgtui-linux-x86_64.tar.gz -C dist lgtui
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: lgtui-linux-x86_64.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
