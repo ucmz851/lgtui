@@ -49,12 +49,11 @@ fi
 
 echo "Installing to: $INSTALL_DIR/lgtui"
 
-# Fetch latest release info (simulated GitHub release downloading)
+# Fetch latest release info
 echo "Fetching latest release details..."
 REPO="lgtui/lgtui"
 # In a real environment, we query the GitHub API:
 # LATEST_TAG=$(curl -sSL "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-# For this installer, we use a placeholder or fallback downloading link:
 LATEST_TAG="v0.1.0"
 DOWNLOAD_URL="https://github.com/$REPO/releases/download/$LATEST_TAG/lgtui-linux-x86_64.tar.gz"
 
@@ -64,32 +63,34 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "Downloading LGTUI release ($LATEST_TAG)..."
-# In a real setup, we download using curl or wget:
-# curl -sSL -o "$TMP_DIR/lgtui.tar.gz" "$DOWNLOAD_URL"
-# tar -xzf "$TMP_DIR/lgtui.tar.gz" -C "$TMP_DIR"
-# For this project, since it is a localized sandbox, we copy our compiled target binary if present, 
-# or write a dummy file that links to/runs the local executable.
-# To make it fully functional in the user's workspace, we will search for the local compiled binary and copy it!
-# This lets the user test the install script locally and see it install their compiled binary.
-LOCAL_BIN="target/debug/lgtui"
-if [ -f "$LOCAL_BIN" ]; then
-    echo "Found local compiled binary. Copying it for installation test..."
-    cp "$LOCAL_BIN" "$TMP_DIR/lgtui"
+# Determine if running from the local repository directory or via curl
+if [ -f Cargo.toml ] && { [ -f "target/debug/lgtui" ] || [ -f "target/release/lgtui" ] || command -v cargo >/dev/null 2>&1; }; then
+    echo "Detected local repository clone. Installing local binary..."
+    if [ -f "target/release/lgtui" ]; then
+        cp "target/release/lgtui" "$TMP_DIR/lgtui"
+    elif [ -f "target/debug/lgtui" ]; then
+        cp "target/debug/lgtui" "$TMP_DIR/lgtui"
+    else
+        echo "No target found. Compiling release binary..."
+        cargo build --release
+        cp target/release/lgtui "$TMP_DIR/lgtui"
+    fi
 else
-    echo "No debug binary found. Building release binary for installation..."
-    cargo build --release
-    cp target/release/lgtui "$TMP_DIR/lgtui"
+    echo "Downloading LGTUI release ($LATEST_TAG) from GitHub..."
+    if command -v curl >/dev/null 2>&1; then
+        curl -sSL -o "$TMP_DIR/lgtui.tar.gz" "$DOWNLOAD_URL"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -q -O "$TMP_DIR/lgtui.tar.gz" "$DOWNLOAD_URL"
+    else
+        echo "${COLOR_RED}[ERROR] Neither curl nor wget was found. Cannot download release.${COLOR_RESET}"
+        exit 1
+    fi
+    tar -xzf "$TMP_DIR/lgtui.tar.gz" -C "$TMP_DIR"
 fi
 
 # Copy binary to destination
-if [ "$(id -u)" -eq 0 ]; then
-    cp "$TMP_DIR/lgtui" "$INSTALL_DIR/lgtui"
-    chmod +x "$INSTALL_DIR/lgtui"
-else
-    cp "$TMP_DIR/lgtui" "$INSTALL_DIR/lgtui"
-    chmod +x "$INSTALL_DIR/lgtui"
-fi
+cp "$TMP_DIR/lgtui" "$INSTALL_DIR/lgtui"
+chmod +x "$INSTALL_DIR/lgtui"
 
 # Setup Desktop Entry file
 echo "Installing desktop application entry..."

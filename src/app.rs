@@ -371,21 +371,19 @@ impl App {
                             AddGameFocus::IsInstaller => AddGameFocus::GameMode,
                         };
                     }
-                    KeyCode::Left => match modal.focus {
-                        AddGameFocus::Runner => {
+                    KeyCode::Left => {
+                        if modal.focus == AddGameFocus::Runner {
                             let total = 1 + self.config.runners.len();
                             modal.selected_runner_idx =
                                 (modal.selected_runner_idx + total - 1) % total;
                         }
-                        _ => {}
-                    },
-                    KeyCode::Right => match modal.focus {
-                        AddGameFocus::Runner => {
+                    }
+                    KeyCode::Right => {
+                        if modal.focus == AddGameFocus::Runner {
                             let total = 1 + self.config.runners.len();
                             modal.selected_runner_idx = (modal.selected_runner_idx + 1) % total;
                         }
-                        _ => {}
-                    },
+                    }
                     KeyCode::Char(' ') => match modal.focus {
                         AddGameFocus::Runner => {
                             let total = 1 + self.config.runners.len();
