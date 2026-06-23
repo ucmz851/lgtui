@@ -21,7 +21,13 @@ else
 fi
 
 if [ -x "$INSTALL_DIR/lgtui" ]; then
-    "$INSTALL_DIR/lgtui" --uninstall
+    if [ -t 0 ]; then
+        "$INSTALL_DIR/lgtui" --uninstall
+    elif [ -c /dev/tty ] && (true < /dev/tty) 2>/dev/null; then
+        "$INSTALL_DIR/lgtui" --uninstall < /dev/tty
+    else
+        "$INSTALL_DIR/lgtui" --uninstall
+    fi
 fi
 
 # Remove binary file
