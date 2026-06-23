@@ -1,1 +1,22 @@
-/target
+# Rust build artifacts
+/target/
+
+# Local database files
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Cargo configuration backups & lockfiles
+Cargo.lock.back
+
+# IDE and Editor configurations
+.vscode/
+.idea/
+*.rs.bk
+*.swp
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
