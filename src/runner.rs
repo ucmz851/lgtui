@@ -73,9 +73,20 @@ impl RunnerManager {
             .build()?;
 
         let url = "https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases";
-        let response = client.get(url).send().await?;
+        let mut request = client.get(url);
+        if let Ok(token) = std::env::var("GITHUB_TOKEN") {
+            let token = token.trim();
+            if !token.is_empty() {
+                request = request.header("Authorization", format!("Bearer {}", token));
+            }
+        }
+        let response = request.send().await?;
 
         if !response.status().is_success() {
+            let status = response.status().as_u16();
+            if status == 403 || status == 429 {
+                return Err("GitHub API rate limit exceeded. Set GITHUB_TOKEN in your environment to increase limits.".into());
+            }
             return Err(format!("GitHub API returned status: {}", response.status()).into());
         }
 

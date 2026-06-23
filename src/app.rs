@@ -667,6 +667,10 @@ impl App {
                     KeyCode::Enter => {
                         self.download_selected_runner();
                     }
+                    KeyCode::Char('r') | KeyCode::Char('R') => {
+                        self.runner_state = RunnerState::FetchingReleases;
+                        RunnerManager::fetch_releases(self.event_tx.clone());
+                    }
                     _ => {}
                 },
                 MenuItem::PrefixManager => match key.code {

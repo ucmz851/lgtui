@@ -1119,7 +1119,7 @@ fn render_footer(f: &mut Frame, app: &App, area: Rect) {
                 "[Enter] Launch Game   [Tab] Cycle Focus   [a] Add Game   [x] Delete Game   [?] Help   [q] Quit"
             }
             MenuItem::RunnerManager => {
-                "[Enter] Install Runner   [j/k] Select   [Tab] Menu   [?] Help   [q] Quit"
+                "[Enter] Install Runner   [r] Refresh   [j/k] Select   [Tab] Menu   [?] Help   [q] Quit"
             }
             MenuItem::PrefixManager => {
                 "[Enter] Init Prefix   [x] Delete Prefix   [n] New Prefix   [j/k] Select   [Tab] Menu   [?] Help   [q] Quit"
@@ -1923,6 +1923,13 @@ fn render_help_modal(f: &mut Frame, area: Rect) {
                 Style::default().fg(COLOR_INFO).add_modifier(Modifier::BOLD),
             ),
             Span::raw("Launch game / download runner / apply custom options"),
+        ]),
+        Line::from(vec![
+            Span::styled(
+                "  r       ",
+                Style::default().fg(COLOR_INFO).add_modifier(Modifier::BOLD),
+            ),
+            Span::raw("Refresh/retry fetching releases (Runner Manager)"),
         ]),
         Line::from(vec![
             Span::styled(
